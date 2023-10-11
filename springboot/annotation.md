@@ -1,0 +1,12 @@
+## 遇到的常用注解
+### Controller层注解
+1. @RestController
+2. @RequestMapping
+3. @GetMapping
+4. @PostMapping
+5. @PutMapping
+6. @DeleteMapping
+7. @ApiOperation
+#### 自动注入
+- @Autowired
+- @Resource

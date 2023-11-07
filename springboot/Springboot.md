@@ -41,7 +41,11 @@ Spring AOP 就是基于动态代理实现，并同时集成了 AspectJ。
 
 - 缓存管理：利用 AOP 在目标方法执行前后进行缓存的读取和更新。
 
-  
+### 面试题
+
+#### @Component 和 @Bean 的区别是什么？
+
+
 
 ## Springboot
 

@@ -41,7 +41,105 @@ Spring AOP 就是基于动态代理实现，并同时集成了 AspectJ。
 
 - 缓存管理：利用 AOP 在目标方法执行前后进行缓存的读取和更新。
 
+
+### 面试题
+
+#### @Component 和 @Bean 的区别是什么？
+
+- `@Component` 注解作用于类，而`@Bean`注解作用于方法。
+- `@Component` 需要开启`@ComponentScan`这个注解来定义扫描的路径，从而找出需要装配的类自动装配到IOC容器中。`@bean`则是在定义时就告诉spring，这是某个类的实例，后续需要的时候返回。
+- 如果需要将第三方的类库中的类装配到IOC容器中，就需要使用`@bean`注解
+
+#### 注入bean的注解有哪些
+
+- `@Autowired`
+- `@Resource`
+- `@Inject`
+
+#### @Autowired 和 @Resource 的区别是什么？
+
+- `Autowired` 属于Spring内置的注解，优先根据接口类型去匹配bean并注入，如果一个接口类型有多个实现类，则会根据名称来匹配，名称通常是类名首字母小写。建议通过 `@Qualifier` 注解来显式指定名称而不是依赖变量的名称。举个例子，`SmsService` 接口有两个实现类: `SmsServiceImpl1`和 `SmsServiceImpl2`，且它们都已经被 Spring 容器所管理。
+
+- ```java
+  // 报错，byName 和 byType 都无法匹配到 bean
+  @Autowired
+  private SmsService smsService;
+  // 正确注入 SmsServiceImpl1 对象对应的 bean
+  @Autowired
+  private SmsService smsServiceImpl1;
+  // 正确注入  SmsServiceImpl1 对象对应的 bean
+  // smsServiceImpl1 就是我们上面所说的名称
+  @Autowired
+  @Qualifier(value = "smsServiceImpl1")
+  private SmsService smsService;
+  ```
+
+- `@Resource` 属于JDK内部的注解，优先根据名称来匹配，如果没找到再根据类型匹配。
+
+- ```java
+  // 报错，byName 和 byType 都无法匹配到 bean
+  @Resource
+  private SmsService smsService;
+  // 正确注入 SmsServiceImpl1 对象对应的 bean
+  @Resource
+  private SmsService smsServiceImpl1;
+  // 正确注入 SmsServiceImpl1 对象对应的 bean（比较推荐这种方式）
+  @Resource(name = "smsServiceImpl1")
+  private SmsService smsService;
   
+  ```
+
+####  Bean 的作用域有哪些?
+
+Spring 中 Bean 的作用域通常有下面几种：
+
+- **singleton（单例）** : IoC 容器中只有唯一的 bean 实例。Spring 中的 bean 默认都是单例的，是对单例设计模式的应用。
+- **prototype（多例）** : 每次获取都会创建一个新的 bean 实例。也就是说，连续 `getBean()` 两次，得到的是不同的 Bean 实例。
+- **request** （仅 Web 应用可用）: 每一次 HTTP 请求都会产生一个新的 bean（请求 bean），该 bean 仅在当前 HTTP request 内有效。
+- **session** （仅 Web 应用可用） : 每一次来自新 session 的 HTTP 请求都会产生一个新的 bean（会话 bean），该 bean 仅在当前 HTTP session 内有效。
+- **application/global-session** （仅 Web 应用可用）：每个 Web 应用在启动时创建一个 Bean（应用 Bean），该 bean 仅在当前应用启动时间内有效。
+- **websocket** （仅 Web 应用可用）：每一次 WebSocket 会话产生一个新的 bean。
+
+#### Bean 是线程安全的吗？
+
+Bean在`prototype` 作用域下，是线程安全的。在**singleton** 单例作用域下，如果Bean中有可变的成员变量，那么会出现线程安全的问题。假设controller层中调用了service中某个方法Test()，该方法对service中的成员变量进行修改，那么在多线程情况下，因为是单例模式，所以会出现多个线程一起调用Test()方法，从而该成员变量出现并发问题。可以使用ThreadLocal类。
+
+#### Bean 的生命周期了解么?
+
+#### Spring AOP 和 AspectJ AOP 有什么区别？
+
+AOP实现的两种方式：`Spring AOP` 和`AspectJ AOP`
+
+- Spring AOP是利用动态代理的机制来实现的，如果一个Bean实现了某个接口，那么就会使用JDK动态代理来生成代理对象，否则就是用CGlib来生成当前类的代理对象。代理对象的作用就是用于代理目标对象，当代理对象在执行某个方法时，会在该方法上添加一些切面逻辑如：登陆校验，权限控制，日志记录等。
+- 增加的切面逻辑称为增强。**Spring AOP **属于运行时增强，而 AspectJ 是编译时增强。**Spring AOP** 基于代理(Proxying)，而 AspectJ 基于字节码操作(Bytecode Manipulation)。
+
+####  AspectJ 定义的通知类型有哪些？
+
+- **Before**（前置通知）：目标对象的方法调用之前触发
+- **After** （后置通知）：目标对象的方法调用之后触发
+- **AfterReturning**（返回通知）：目标对象的方法调用完成，在返回结果值之后触发
+- **AfterThrowing**（异常通知）：目标对象的方法运行中抛出 / 触发异常后触发。
+- **Around** （环绕通知）：编程式控制目标对象的方法调用。环绕通知是所有通知类型中可操作范围最大的一种，因为它可以直接拿到目标对象，以及要执行的方法，所以环绕通知可以任意的在目标对象的方法调用前后搞事，甚至不调用目标对象的方法
+
+#### Spring MVC的核心组件
+
+- DispatcherServlet：核心中央处理器，负责接收请求，分发，并给予客户端响应
+- HandlerMapping：处理器映射器，根据请求的URL来匹配能够处理这个请求的Handle；
+- HandlerAdapter：根绝HandlerMapping匹配到的Handler，适配执行对应的Handler；
+- Handler：请求处理器，执行实际请求的处理器；
+- ViewResolver：视图解析器，根据Handler返回的视图，渲染成实际视图并返回。
+
+#### 统一的异常处理怎么做
+
+会使用到：`@ControllerAdvice`  以及`@ExcetionHandler`这两个注解。
+
+- `@ControllerAdvice` 注解会将所有或指定的Controller编入异常处理的逻辑(AOP)中，当controller中出现异常时，就会使用被`@ExcetionHandler`修饰的方法处理；
+- `ExceptionHandlerMethodResolver` 中 `getMappedMethod` 方法决定了异常具体被哪个被 `@ExceptionHandler` 注解修饰的方法处理异常。
+- **`getMappedMethod()`会首先找到可以匹配处理异常的所有方法信息，然后对其进行从小到大的排序，最后取最小的那一个匹配的方法(即匹配度最高的那个)。**
+
+#### Spring框架中用到哪些设计模式
+
+
 
 ## Springboot
 

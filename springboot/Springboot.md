@@ -46,6 +46,7 @@ Spring AOP 就是基于动态代理实现，并同时集成了 AspectJ。
 
 #### @Component 和 @Bean 的区别是什么？
 
+<<<<<<< HEAD
 - `@Component` 注解作用于类，而`@Bean`注解作用于方法。
 - `@Component` 需要开启`@ComponentScan`这个注解来定义扫描的路径，从而找出需要装配的类自动装配到IOC容器中。`@bean`则是在定义时就告诉spring，这是某个类的实例，后续需要的时候返回。
 - 如果需要将第三方的类库中的类装配到IOC容器中，就需要使用`@bean`注解

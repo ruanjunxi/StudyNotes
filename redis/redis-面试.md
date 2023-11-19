@@ -1,6 +1,6 @@
 ## 数据类型篇
 
-#### String
+#### String 
 
 ![string](.\ref\string.png)
 
